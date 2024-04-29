@@ -1,4 +1,6 @@
-use crate::{block_constraint::BlockConstraint, board::Board, cell_constraint::CellConstraint, column_constraint::ColumnConstraint, range_assignment_constraint::{CellConstraintsMap, RangeConstraintHelper}, row_constraint::RowConstraint};
+use std::convert::identity;
+
+use crate::{assignment::Assignment, block_constraint::BlockConstraint, board::Board, cell_constraint::CellConstraint, column_constraint::ColumnConstraint, range_assignment_constraint::{CellConstraintsMap, RangeConstraintHelper}, row_constraint::RowConstraint};
 
 pub struct BoardConstraints {
     row_constraints: [RowConstraint; 9],
@@ -130,21 +132,18 @@ impl BoardConstraints {
         self.cell_constraints[cell_coordinate_to_index(column, row)].mark_as_assigned();
         
         self.row_constraints[row].assign_value(value);
-        for i in 0..9 {
-            let (column, row) = self.row_constraints[row].get_cell_position_from_index(i);
-            self.cell_constraints[cell_coordinate_to_index(column, row)].assign_value(value);
-        }
-
         self.col_constraints[column].assign_value(value);
-        for i in 0..9 {
-            let (column, row) = self.col_constraints[column].get_cell_position_from_index(i);
-            self.cell_constraints[cell_coordinate_to_index(column, row)].assign_value(value);
-        }
-        
         self.block_constraints[row/3][column/3].assign_value(value);
+
         for i in 0..9 {
-            let (column, row) = self.block_constraints[row/3][column/3].get_cell_position_from_index(i);
-            self.cell_constraints[cell_coordinate_to_index(column, row)].assign_value(value);
+            let (x, y) = self.row_constraints[row].get_cell_position_from_index(i);
+            self.cell_constraints[cell_coordinate_to_index(x, y)].assign_value(value);
+
+            let (x, y) = self.col_constraints[column].get_cell_position_from_index(i);
+            self.cell_constraints[cell_coordinate_to_index(x, y)].assign_value(value);
+
+            let (x, y) = self.block_constraints[row/3][column/3].get_cell_position_from_index(i);
+            self.cell_constraints[cell_coordinate_to_index(x, y)].assign_value(value);
         }
     }    
 
@@ -216,56 +215,27 @@ impl BoardConstraints {
         self.improve_blocks()
     }
 
-    fn improve_rows(&mut self) -> bool{
-        let mut improved = false;
-        for i in 0..9 {
-            let assignments = self.row_constraints[i].find_single_number_assignments(&self.board, self);
-            for single_number_assignment in assignments.iter() {
-                self.assign_value_to_cell(
-                    single_number_assignment.column,
-                    single_number_assignment.row,
-                    single_number_assignment.value
-                )
-            }                
-            improved |= assignments.len() > 0;
-        }
-        improved
+    fn improve_from_assignments(&mut self, assignments: Vec<Assignment>) -> bool {
+        for single_number_assignment in assignments.iter() {
+            self.assign_value_to_cell(
+                single_number_assignment.column,
+                single_number_assignment.row,
+                single_number_assignment.value
+            )
+        }                
+        assignments.len() > 0
     }
 
-    fn improve_columns(&mut self) -> bool{
-        let mut improved = false;
-        for i in 0..9 {
-            let assignments = self.col_constraints[i].find_single_number_assignments(&self.board, self);
-            for single_number_assignment in assignments.iter() {
-                self.assign_value_to_cell(
-                    single_number_assignment.column,
-                    single_number_assignment.row,
-                    single_number_assignment.value
-                )
-            }                
-            improved |= assignments.len() > 0;
-        }
-        improved
+    fn improve_rows(&mut self) -> bool{
+        (0..9).map(|i| self.improve_from_assignments(self.row_constraints[i].find_single_number_assignments(&self.board, self))).any(identity)
+    }
+
+    fn improve_columns(&mut self) -> bool {
+        (0..9).map(|i| self.improve_from_assignments(self.col_constraints[i].find_single_number_assignments(&self.board, self))).any(identity)
     }    
 
     fn improve_blocks(&mut self) -> bool {
-        let mut improved = false;
-        for i in 0..3 {
-            for j in 0..3 {
-                let assignments =  self.block_constraints[i][j].find_single_number_assignments(&self.board, self);
-                for single_number_assignment in assignments.iter() {
-                    self.assign_value_to_cell(
-                        single_number_assignment.column,
-                        single_number_assignment.row,
-                        single_number_assignment.value
-                    )
-                }                
-                improved |= assignments.len() > 0;
-
-            }
-        }
-
-        improved
+        (0..9).map(|i| self.improve_from_assignments(self.block_constraints[i%3][i/3].find_single_number_assignments(&self.board, self))).any(identity)
     }
 }
 
