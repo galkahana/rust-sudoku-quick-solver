@@ -182,7 +182,7 @@ impl BoardConstraints {
 
     fn has_cell_with_no_possible_assignment(&self) -> bool {
         self.cell_constraints.iter().any(
-            |element| element.has_no_possible_assignments() &&
+            |element| !element.has_possible_assignments() &&
                 self.board.is_available(element.get_column(),element.get_row())
         )
 

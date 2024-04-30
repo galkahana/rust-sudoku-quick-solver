@@ -29,7 +29,7 @@ pub fn generate_groups_of_cell_guesses(cell_constraints:&[CellConstraint]) -> Ve
 
 
     for cell_constraint in cell_constraints {
-        if cell_constraint.has_no_possible_assignments() {
+        if !cell_constraint.has_possible_assignments() {
             continue;
         }
 
@@ -59,7 +59,7 @@ pub fn generate_group_of_number_guesses(cell_constraints:&[CellConstraint]) -> V
 
 
     for cell_constraint in cell_constraints {
-        if cell_constraint.has_no_possible_assignments() {
+        if !cell_constraint.has_possible_assignments() {
             continue;
         }
 

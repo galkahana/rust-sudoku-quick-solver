@@ -35,24 +35,19 @@ impl CellConstraint{
             return true;
         }
 
-        let mut iter = constraints.iter();
-
-        if let Some(first_constraint) = iter.next() {
-            self.assignment_constraint.assign(first_constraint);
-            for other_constraint in iter {
-                self.assignment_constraint.intersect_with(other_constraint)
-            }
+        for other_constraint in constraints {
+            self.assignment_constraint.intersect_with(other_constraint)
         }
-        self.assignment_constraint.get_allowed_values().len() > 0
+        self.assignment_constraint.has_possible_assignments()
 
     }
 
     pub fn has_single_possible_assignment(& self) -> bool {
-        self.assignment_constraint.get_allowed_values().len() == 1
+        self.assignment_constraint.has_one_possible_assignment()
     }
 
-    pub fn has_no_possible_assignments(& self) -> bool {
-        self.assignment_constraint.get_allowed_values().is_empty()
+    pub fn has_possible_assignments(& self) -> bool {
+        self.assignment_constraint.has_possible_assignments()
     }
 
     pub fn get_allowed_values(& self) -> &HashSet<u32> {
@@ -60,10 +55,7 @@ impl CellConstraint{
     }    
 
     pub fn get_possible_assignment(& self) -> u32 {
-        if let Some(candidate) = self.assignment_constraint.get_allowed_values().iter().next() {
-            return *candidate;
-        }
-        return board::EMPTY_CELL_VALUE
+        self.assignment_constraint.get_possible_assignment()
     }
 
     pub fn mark_as_assigned(&mut self) {

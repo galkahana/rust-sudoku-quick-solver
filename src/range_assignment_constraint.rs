@@ -1,8 +1,5 @@
 use crate::{assignment::Assignment, assignment_constraint::AssignmentConstraint, board::Board, cell_constraint::CellConstraint};
 
-const ALL_VALUES: [u32; 9] = [1,2,3,4,5,6,7,8,9];
-
-
 pub trait CellConstraintsMap {
     fn get_cell_constraint(
         & self,
@@ -28,10 +25,6 @@ impl RangeAssignmentConstraint{
         RangeAssignmentConstraint {
             assignment_constraint: AssignmentConstraint::new(),
         }
-    }
-
-    pub fn fill_values_with_range(&mut self) {
-        self.assignment_constraint.init_with_values(&ALL_VALUES);
     }
 
     pub fn is_full(&self) -> bool {

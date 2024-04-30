@@ -18,7 +18,6 @@ impl RowConstraint {
 
     pub fn init(&mut self, board: &Board) -> bool {
         let mut ok = true;
-        self.range_assignment_constraint.fill_values_with_range();
         for i in 0..9 {
             if !board.is_available(i, self.row_index) {
                 ok &= self.range_assignment_constraint.assign_value(board.get(i, self.row_index));
