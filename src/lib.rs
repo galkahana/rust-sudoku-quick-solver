@@ -1,5 +1,4 @@
 mod assignment_constraint;
-mod cell_constraint;
 mod range_assignment_constraint;
 mod column_constraint;
 mod row_constraint;

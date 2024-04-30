@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use crate::board::EMPTY_CELL_VALUE;
+
 /**
  * This class might have been interesting in the past, now seems like a very trivial wrapper over hashset...maybe
  * not really needed anymore.
@@ -11,7 +13,7 @@ pub struct AssignmentConstraint {
 impl AssignmentConstraint {
     pub fn new() -> AssignmentConstraint {
         AssignmentConstraint {
-            allowed_values: HashSet::new(),
+            allowed_values:  HashSet::from_iter(1..10), // meaning 1-9
         }
     }    
 
@@ -22,6 +24,18 @@ impl AssignmentConstraint {
 
     pub fn can_assign_value(&self, value: u32) -> bool {
         self.allowed_values.contains(&value)
+    }
+
+    pub fn has_possible_assignments(&self) -> bool {
+        self.allowed_values.len() > 0
+    }
+
+    pub fn has_one_possible_assignment(&self) -> bool {
+        self.allowed_values.len()  == 1
+    }
+
+    pub fn get_possible_assignment(& self) -> u32 {
+        *self.get_allowed_values().iter().next().unwrap_or(&EMPTY_CELL_VALUE)
     }
 
     pub fn clear(&mut self) {
@@ -39,13 +53,7 @@ impl AssignmentConstraint {
     pub fn get_allowed_values(& self) -> &HashSet<u32>{
         &self.allowed_values
     }
-  
-    pub fn init_with_values(&mut self, values: &[u32]) {
-        self.allowed_values.clear();
-        for value in values {
-            self.allowed_values.insert(*value);
-        }
-    }    
+   
 }
 
 #[cfg(test)]

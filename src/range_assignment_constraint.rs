@@ -1,14 +1,11 @@
-use crate::{assignment::Assignment, assignment_constraint::AssignmentConstraint, board::Board, cell_constraint::CellConstraint};
-
-const ALL_VALUES: [u32; 9] = [1,2,3,4,5,6,7,8,9];
-
+use crate::{assignment::Assignment, assignment_constraint::AssignmentConstraint, board::Board};
 
 pub trait CellConstraintsMap {
     fn get_cell_constraint(
         & self,
         column: usize,
         row: usize,       
-    ) -> & CellConstraint;
+    ) -> & AssignmentConstraint;
 }
 
 pub trait RangeConstraintHelper {
@@ -30,14 +27,6 @@ impl RangeAssignmentConstraint{
         }
     }
 
-    pub fn fill_values_with_range(&mut self) {
-        self.assignment_constraint.init_with_values(&ALL_VALUES);
-    }
-
-    pub fn is_full(&self) -> bool {
-        self.assignment_constraint.get_allowed_values().is_empty()
-    }
-
     pub fn find_single_number_assignments(
         &self, 
         helper: &impl RangeConstraintHelper, 
@@ -46,28 +35,26 @@ impl RangeAssignmentConstraint{
     ) -> Vec<Assignment> {
         let mut assignments: Vec<Assignment> = Vec::new();
 
-        if self.is_full() {
+        if !self.assignment_constraint.has_possible_assignments() {
             return assignments
         }
 
         for value in  self.assignment_constraint.get_allowed_values().iter() {
-            let mut possible_assignments: Vec<&CellConstraint> = Vec::new();
+            let mut possible_assignments: Vec<Assignment> = Vec::new();
 
             for i in 0..9 {
                 let (column, row) = helper.get_cell_position_from_index(i);
                 let cell = constraints.get_cell_constraint(column, row);
-                if board.is_available(cell.get_column(), cell.get_row()) & cell.can_assign_value(*value) {
-                    possible_assignments.push(cell)    
+                if board.is_available(column, row) & cell.can_assign_value(*value) {
+                    possible_assignments.push(Assignment {
+                        column,
+                        row,
+                        value: *value
+                    })    
                 }
             }
             if possible_assignments.len() == 1 {
-                let cell = possible_assignments.pop().unwrap();
-
-                assignments.push(Assignment {
-                    column: cell.get_column(),
-                    row: cell.get_row(),
-                    value: *value
-                })
+                assignments.push(possible_assignments.pop().unwrap());
             }
         }
 
@@ -93,7 +80,7 @@ impl RangeAssignmentConstraint{
         board: &Board, 
         constraints: & impl CellConstraintsMap       
     ) -> bool {
-        if self.is_full() {
+        if !self.assignment_constraint.has_possible_assignments()  {
             return false;
         }
 
@@ -105,7 +92,7 @@ impl RangeAssignmentConstraint{
             for i in 0..9 {
                 let (column, row) = helper.get_cell_position_from_index(i);
                 let cell = constraints.get_cell_constraint(column, row);
-                if board.is_available(cell.get_column(), cell.get_row()) & cell.can_assign_value(*value) {
+                if board.is_available(column, row) & cell.can_assign_value(*value) {
                     possible_assignments_count+=1;
                 }
             }

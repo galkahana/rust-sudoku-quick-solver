@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::{assignment::Assignment, cell_constraint::CellConstraint, guess_group::GuessGroup};
+use crate::{assignment::Assignment, assignment_constraint::AssignmentConstraint, guess_group::GuessGroup};
 
 pub fn guess_group_compare(a: &GuessGroup, b: &GuessGroup) -> Ordering {
     if a.rank() != b.rank() {
@@ -24,20 +24,20 @@ pub fn guess_group_compare(a: &GuessGroup, b: &GuessGroup) -> Ordering {
     Ordering::Equal
 }
 
-pub fn generate_groups_of_cell_guesses(cell_constraints:&[CellConstraint]) -> Vec<GuessGroup> {
+pub fn generate_groups_of_cell_guesses(cell_constraints:&[AssignmentConstraint]) -> Vec<GuessGroup> {
     let mut result: Vec<GuessGroup> = Vec::new();
 
 
-    for cell_constraint in cell_constraints {
-        if cell_constraint.has_no_possible_assignments() {
+    for (index, cell_constraint) in cell_constraints.iter().enumerate() {
+        if !cell_constraint.has_possible_assignments() {
             continue;
         }
 
         let mut guess_group = GuessGroup::new();
         for assignment_number in cell_constraint.get_allowed_values().iter() {
             guess_group.add(Assignment {
-                column:cell_constraint.get_column(),
-                row: cell_constraint.get_row(),
+                column: index % 9,
+                row: index / 9,
                 value: *assignment_number
             })
         }
@@ -50,7 +50,7 @@ pub fn generate_groups_of_cell_guesses(cell_constraints:&[CellConstraint]) -> Ve
 
 }
 
-pub fn generate_group_of_number_guesses(cell_constraints:&[CellConstraint]) -> Vec<GuessGroup> {
+pub fn generate_group_of_number_guesses(cell_constraints:&[AssignmentConstraint]) -> Vec<GuessGroup> {
     let mut result: Vec<GuessGroup> = Vec::new();
 
     for _ in 0..9 {
@@ -58,8 +58,8 @@ pub fn generate_group_of_number_guesses(cell_constraints:&[CellConstraint]) -> V
     }
 
 
-    for cell_constraint in cell_constraints {
-        if cell_constraint.has_no_possible_assignments() {
+    for (index, cell_constraint) in cell_constraints.iter().enumerate() {
+        if !cell_constraint.has_possible_assignments() {
             continue;
         }
 
@@ -67,8 +67,8 @@ pub fn generate_group_of_number_guesses(cell_constraints:&[CellConstraint]) -> V
             let guess_group =  result.get_mut((assignment_number-1) as usize).unwrap();
 
             guess_group.add(Assignment {
-                column:cell_constraint.get_column(),
-                row: cell_constraint.get_row(),
+                column: index % 9,
+                row: index / 9,
                 value: *assignment_number
             })
         }

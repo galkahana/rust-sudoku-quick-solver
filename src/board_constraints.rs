@@ -1,12 +1,12 @@
 use std::convert::identity;
 
-use crate::{assignment::Assignment, block_constraint::BlockConstraint, board::Board, cell_constraint::CellConstraint, column_constraint::ColumnConstraint, range_assignment_constraint::{CellConstraintsMap, RangeConstraintHelper}, row_constraint::RowConstraint};
+use crate::{assignment::Assignment, assignment_constraint::AssignmentConstraint, block_constraint::BlockConstraint, board::Board, column_constraint::ColumnConstraint, range_assignment_constraint::{CellConstraintsMap, RangeConstraintHelper}, row_constraint::RowConstraint};
 
 pub struct BoardConstraints {
     row_constraints: [RowConstraint; 9],
     col_constraints: [ColumnConstraint; 9],
     block_constraints: [[BlockConstraint; 3]; 3],
-    cell_constraints: [CellConstraint; 81],
+    cell_constraints: [AssignmentConstraint; 81],
 
     board: Board,
 }
@@ -46,15 +46,15 @@ impl BoardConstraints {
                 [BlockConstraint::new(0,6), BlockConstraint::new(3,6), BlockConstraint::new(6,6)],
             ],
             cell_constraints: [
-                CellConstraint::new(0,0),CellConstraint::new(1,0),CellConstraint::new(2,0),CellConstraint::new(3,0),CellConstraint::new(4,0),CellConstraint::new(5,0),CellConstraint::new(6,0),CellConstraint::new(7,0),CellConstraint::new(8,0),
-                CellConstraint::new(0,1),CellConstraint::new(1,1),CellConstraint::new(2,1),CellConstraint::new(3,1),CellConstraint::new(4,1),CellConstraint::new(5,1),CellConstraint::new(6,1),CellConstraint::new(7,1),CellConstraint::new(8,1),
-                CellConstraint::new(0,2),CellConstraint::new(1,2),CellConstraint::new(2,2),CellConstraint::new(3,2),CellConstraint::new(4,2),CellConstraint::new(5,2),CellConstraint::new(6,2),CellConstraint::new(7,2),CellConstraint::new(8,2),
-                CellConstraint::new(0,3),CellConstraint::new(1,3),CellConstraint::new(2,3),CellConstraint::new(3,3),CellConstraint::new(4,3),CellConstraint::new(5,3),CellConstraint::new(6,3),CellConstraint::new(7,3),CellConstraint::new(8,3),
-                CellConstraint::new(0,4),CellConstraint::new(1,4),CellConstraint::new(2,4),CellConstraint::new(3,4),CellConstraint::new(4,4),CellConstraint::new(5,4),CellConstraint::new(6,4),CellConstraint::new(7,4),CellConstraint::new(8,4),
-                CellConstraint::new(0,5),CellConstraint::new(1,5),CellConstraint::new(2,5),CellConstraint::new(3,5),CellConstraint::new(4,5),CellConstraint::new(5,5),CellConstraint::new(6,5),CellConstraint::new(7,5),CellConstraint::new(8,5),
-                CellConstraint::new(0,6),CellConstraint::new(1,6),CellConstraint::new(2,6),CellConstraint::new(3,6),CellConstraint::new(4,6),CellConstraint::new(5,6),CellConstraint::new(6,6),CellConstraint::new(7,6),CellConstraint::new(8,6),
-                CellConstraint::new(0,7),CellConstraint::new(1,7),CellConstraint::new(2,7),CellConstraint::new(3,7),CellConstraint::new(4,7),CellConstraint::new(5,7),CellConstraint::new(6,7),CellConstraint::new(7,7),CellConstraint::new(8,7),
-                CellConstraint::new(0,8),CellConstraint::new(1,8),CellConstraint::new(2,8),CellConstraint::new(3,8),CellConstraint::new(4,8),CellConstraint::new(5,8),CellConstraint::new(6,8),CellConstraint::new(7,8),CellConstraint::new(8,8),
+                AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),
+                AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),
+                AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),
+                AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),
+                AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),
+                AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),
+                AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),
+                AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),
+                AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),AssignmentConstraint::new(),
             ],
 
             board,
@@ -117,7 +117,7 @@ impl BoardConstraints {
         &self.board
     }
 
-    pub fn get_cell_constraints(&self) -> &[CellConstraint] {
+    pub fn get_cell_constraints(&self) -> &[AssignmentConstraint] {
         &self.cell_constraints
     }
 
@@ -129,7 +129,7 @@ impl BoardConstraints {
         value: u32,
     ) -> () {
         self.board.set(column,row,value);
-        self.cell_constraints[cell_coordinate_to_index(column, row)].mark_as_assigned();
+        self.cell_constraints[cell_coordinate_to_index(column, row)].clear();
         
         self.row_constraints[row].assign_value(value);
         self.col_constraints[column].assign_value(value);
@@ -166,24 +166,36 @@ impl BoardConstraints {
 
         for i in 0..9 {
             for j in 0..9 {
-                ok &= self.cell_constraints[cell_coordinate_to_index(j,i)].init_from_board(
-                    &self.board, 
-                    &[
-                        self.block_constraints[i/3][j/3].get_assignment_constraint(),
-                        self.col_constraints[j].get_assignment_constraint(),
-                        self.row_constraints[i].get_assignment_constraint(),
-                    ]
-                );
+                ok &= self.init_cell_constraint(j,i);
             }
         }
 
         ok
     }
 
+    fn init_cell_constraint(
+        &mut self, 
+        column: usize,
+        row: usize,
+    ) -> bool {
+        let assignment_constraint  = &mut self.cell_constraints[cell_coordinate_to_index(column,row)];
+
+        if ! self.board.is_available(column, row) {
+            assignment_constraint.clear();
+            return true;
+        }
+
+        assignment_constraint.intersect_with(self.block_constraints[row/3][column/3].get_assignment_constraint());
+        assignment_constraint.intersect_with(self.col_constraints[column].get_assignment_constraint());
+        assignment_constraint.intersect_with(self.row_constraints[row].get_assignment_constraint());
+        
+        assignment_constraint.has_possible_assignments()
+    }    
+
     fn has_cell_with_no_possible_assignment(&self) -> bool {
-        self.cell_constraints.iter().any(
-            |element| element.has_no_possible_assignments() &&
-                self.board.is_available(element.get_column(),element.get_row())
+        self.cell_constraints.iter().enumerate().any(
+            |(index, element) | !element.has_possible_assignments() &&
+                self.board.is_available(index % 9,index / 9)
         )
 
     }
@@ -199,7 +211,7 @@ impl BoardConstraints {
 
         for i in 0..9 {
             for j in 0..9 {
-                if self.board.is_available(j, i) && self.cell_constraints[cell_coordinate_to_index(j, i)].has_single_possible_assignment() {
+                if self.board.is_available(j, i) && self.cell_constraints[cell_coordinate_to_index(j, i)].has_one_possible_assignment() {
                     improved = true;
                     self.assign_value_to_cell(j, i, self.cell_constraints[cell_coordinate_to_index(j, i)].get_possible_assignment())
                 }
@@ -244,8 +256,8 @@ impl CellConstraintsMap for BoardConstraints {
         &self,
         column: usize,
         row: usize,       
-    ) -> & CellConstraint {
-        return &self.cell_constraints[cell_coordinate_to_index(column, row)]
+    ) -> &AssignmentConstraint {
+        &self.cell_constraints[cell_coordinate_to_index(column, row)]
     }
 }
 
