@@ -1,6 +1,6 @@
 use std::convert::identity;
 
-use crate::{assignment::Assignment, assignment_constraint::AssignmentConstraint, block_constraint::BlockConstraint, board::Board, column_constraint::ColumnConstraint, range_assignment_constraint::{CellConstraintsMap, RangeConstraintHelper}, row_constraint::RowConstraint};
+use crate::{assignment::Assignment, assignment_constraint::AssignmentConstraint, block_constraint::BlockConstraint, board::Board, column_constraint::ColumnConstraint, range_constraint::CellConstraintsMap, range_constraint::RangeConstraint, row_constraint::RowConstraint};
 
 pub struct BoardConstraints {
     row_constraints: [RowConstraint; 9],
@@ -131,9 +131,9 @@ impl BoardConstraints {
         self.board.set(column,row,value);
         self.cell_constraints[cell_coordinate_to_index(column, row)].clear();
         
-        self.row_constraints[row].assign_value(value);
-        self.col_constraints[column].assign_value(value);
-        self.block_constraints[row/3][column/3].assign_value(value);
+        self.row_constraints[row].get_assignment_constraint_mut().assign_value(value);
+        self.col_constraints[column].get_assignment_constraint_mut().assign_value(value);
+        self.block_constraints[row/3][column/3].get_assignment_constraint_mut().assign_value(value);
 
         for i in 0..9 {
             let (x, y) = self.row_constraints[row].get_cell_position_from_index(i);
@@ -201,9 +201,9 @@ impl BoardConstraints {
     }
 
     fn has_number_with_no_possible_assignment(&self) -> bool {
-        self.row_constraints.iter().any(|element| element.get_range_assignment_constraint().has_number_with_no_possible_assignments(element, &self.board, self)) ||
-        self.col_constraints.iter().any(|element| element.get_range_assignment_constraint().has_number_with_no_possible_assignments(element, &self.board, self)) ||
-        self.block_constraints.iter().flatten().any(|element| element.get_range_assignment_constraint().has_number_with_no_possible_assignments(element, &self.board, self))
+        self.row_constraints.iter().any(|element| element.has_number_with_no_possible_assignments(&self.board, self)) ||
+        self.col_constraints.iter().any(|element| element.has_number_with_no_possible_assignments(&self.board, self)) ||
+        self.block_constraints.iter().flatten().any(|element| element.has_number_with_no_possible_assignments(&self.board, self))
     }
 
     fn improve_cells_with_single_possible_assignment(&mut self) -> bool {
