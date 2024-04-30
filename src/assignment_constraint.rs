@@ -2,10 +2,7 @@ use std::collections::HashSet;
 
 use crate::board::EMPTY_CELL_VALUE;
 
-/**
- * This class might have been interesting in the past, now seems like a very trivial wrapper over hashset...maybe
- * not really needed anymore.
- */
+
 pub struct AssignmentConstraint {
     allowed_values: HashSet<u32>,
 }
