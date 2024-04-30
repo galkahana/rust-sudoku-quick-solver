@@ -1,17 +1,16 @@
-use crate::assignment::Assignment;
 use crate::assignment_constraint::AssignmentConstraint;
 use crate::board::Board;
-use crate::range_assignment_constraint::{CellConstraintsMap, RangeAssignmentConstraint, RangeConstraintHelper};
+use crate::range_constraint::RangeConstraint;
 
 pub struct ColumnConstraint {
-    pub range_assignment_constraint: RangeAssignmentConstraint,
+    assignment_constraint: AssignmentConstraint,
     column_index: usize,
 }
 
 impl ColumnConstraint {
     pub fn new(column_index: usize) -> ColumnConstraint {
         ColumnConstraint {
-            range_assignment_constraint: RangeAssignmentConstraint::new(),
+            assignment_constraint: AssignmentConstraint::new(),
             column_index,
         }
     }    
@@ -20,44 +19,38 @@ impl ColumnConstraint {
         let mut ok = true;
         for i in 0..9 {
             if !board.is_available(self.column_index, i) {
-                ok &= self.range_assignment_constraint.assign_value(board.get(self.column_index,i));
+                ok &= self.assignment_constraint.assign_value(board.get(self.column_index,i));
             }
         }
 
         ok
     }
 
-    pub fn get_range_assignment_constraint(&self) -> &RangeAssignmentConstraint {
-        &self.range_assignment_constraint
-    }
-        
-    pub fn get_assignment_constraint(&self) -> &AssignmentConstraint {
-        &self.range_assignment_constraint.get_assignment_constraint()
-    }    
-
-    pub fn assign_value(&mut self, value: u32)-> bool {
-        self.range_assignment_constraint.assign_value(value)
-    }
-
-    pub fn find_single_number_assignments(
-        &self, 
-        board: &Board, 
-        constraints: &impl CellConstraintsMap
-    ) -> Vec<Assignment> {
-        self.range_assignment_constraint.find_single_number_assignments(self, board, constraints)
-    }      
-
     pub fn assign(&mut self, other: &ColumnConstraint) {
-        self.range_assignment_constraint.assign(&other.range_assignment_constraint);
+        self.assignment_constraint.assign(&other.assignment_constraint);
         self.column_index = other.column_index;
     }
 }
 
-impl RangeConstraintHelper for ColumnConstraint {
+impl RangeConstraint for ColumnConstraint {
     fn get_cell_position_from_index(
         &self,
         cell_index: usize
     ) -> (usize, usize) {
         (self.column_index, cell_index)
+    }  
+
+    fn get_assignment_constraint(
+        &self
+    ) -> &AssignmentConstraint {
+        &self.assignment_constraint
     }
+
+    fn get_assignment_constraint_mut(
+        &mut self
+    ) -> &mut AssignmentConstraint {
+        &mut self.assignment_constraint
+    }        
 }
+
+

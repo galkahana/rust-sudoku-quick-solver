@@ -1,5 +1,6 @@
 use crate::{assignment::Assignment, assignment_constraint::AssignmentConstraint, board::Board};
 
+
 pub trait CellConstraintsMap {
     fn get_cell_constraint(
         & self,
@@ -8,42 +9,37 @@ pub trait CellConstraintsMap {
     ) -> & AssignmentConstraint;
 }
 
-pub trait RangeConstraintHelper {
+pub trait RangeConstraint {
     fn get_cell_position_from_index(
         &self,
         cell_index: usize
     ) -> (usize, usize);
-}
+
+    fn get_assignment_constraint(
+        &self
+    ) -> &AssignmentConstraint;
+
+    fn get_assignment_constraint_mut(
+        &mut self
+    ) -> &mut AssignmentConstraint;    
 
 
-pub struct RangeAssignmentConstraint {
-    assignment_constraint: AssignmentConstraint
-}
-
-impl RangeAssignmentConstraint{
-    pub fn new() -> RangeAssignmentConstraint {
-        RangeAssignmentConstraint {
-            assignment_constraint: AssignmentConstraint::new(),
-        }
-    }
-
-    pub fn find_single_number_assignments(
+    fn find_single_number_assignments(
         &self, 
-        helper: &impl RangeConstraintHelper, 
         board: &Board, 
         constraints: &impl CellConstraintsMap
     ) -> Vec<Assignment> {
         let mut assignments: Vec<Assignment> = Vec::new();
 
-        if !self.assignment_constraint.has_possible_assignments() {
+        if !self.get_assignment_constraint().has_possible_assignments() {
             return assignments
         }
 
-        for value in  self.assignment_constraint.get_allowed_values().iter() {
+        for value in  self.get_assignment_constraint().get_allowed_values().iter() {
             let mut possible_assignments: Vec<Assignment> = Vec::new();
 
             for i in 0..9 {
-                let (column, row) = helper.get_cell_position_from_index(i);
+                let (column, row) = self.get_cell_position_from_index(i);
                 let cell = constraints.get_cell_constraint(column, row);
                 if board.is_available(column, row) & cell.can_assign_value(*value) {
                     possible_assignments.push(Assignment {
@@ -62,35 +58,22 @@ impl RangeAssignmentConstraint{
 
     }
 
-    pub fn assign_value(&mut self, value: u32) -> bool {
-        self.assignment_constraint.assign_value(value)
-    }
-
-    pub fn assign(&mut self, other: &RangeAssignmentConstraint) {
-        self.assignment_constraint.assign(&other.assignment_constraint);
-    }
-
-    pub fn get_assignment_constraint(&self) -> &AssignmentConstraint {
-        &self.assignment_constraint
-    }
-
-    pub fn has_number_with_no_possible_assignments(
+    fn has_number_with_no_possible_assignments(
         &self, 
-        helper: & impl RangeConstraintHelper, 
         board: &Board, 
         constraints: & impl CellConstraintsMap       
     ) -> bool {
-        if !self.assignment_constraint.has_possible_assignments()  {
+        if !self.get_assignment_constraint().has_possible_assignments()  {
             return false;
         }
 
 
         let mut possible_assignments_count = 0;
 
-        for value in  self.assignment_constraint.get_allowed_values().iter() {
+        for value in  self.get_assignment_constraint().get_allowed_values().iter() {
             possible_assignments_count= 0;
             for i in 0..9 {
-                let (column, row) = helper.get_cell_position_from_index(i);
+                let (column, row) = self.get_cell_position_from_index(i);
                 let cell = constraints.get_cell_constraint(column, row);
                 if board.is_available(column, row) & cell.can_assign_value(*value) {
                     possible_assignments_count+=1;
@@ -106,3 +89,5 @@ impl RangeAssignmentConstraint{
 
     }
 }
+
+
