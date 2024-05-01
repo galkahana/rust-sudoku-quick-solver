@@ -72,11 +72,9 @@ pub fn generate_group_of_number_guesses(cell_constraints:&[AssignmentConstraint]
                 value: *assignment_number
             })
         }
-
-
-        result.retain(|item| item.rank() > 0)
-        
     }
+
+    result.retain(|item| item.rank() > 0);
 
     result.sort_by(guess_group_compare);
 
