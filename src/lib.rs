@@ -1,12 +1,12 @@
-mod assignment_constraint;
-mod column_constraint;
-mod row_constraint;
-mod block_constraint;
 mod assignment;
-mod guesses_generation;
-mod guess_group;
+mod assignment_constraint;
+mod block_constraint;
 mod board_constraints;
+mod column_constraint;
+mod guess_group;
+mod guesses_generation;
 mod range_constraint;
+mod row_constraint;
 
 pub mod board;
 pub mod sudoku_game;
