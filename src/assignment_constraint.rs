@@ -9,7 +9,7 @@ pub struct AssignmentConstraint {
 impl AssignmentConstraint {
     pub fn new() -> AssignmentConstraint {
         AssignmentConstraint {
-            allowed_values: HashSet::from_iter(1..10), // meaning 1-9
+            allowed_values: HashSet::from_iter(1..=9),
         }
     }
 
