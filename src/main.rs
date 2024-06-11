@@ -8,12 +8,12 @@ use std::time::Duration;
 /// Sudoku Puzzle solver.
 /// Input is a board formatted in the following manner:
 /// Each cell is designated by a digit:
-///     - 1-9 for designated value
+///     - 1-9 for assigned value
 ///     - 0 for empty value
 /// separators between digits are not required, though
 /// you can separate lines with newlines.
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(version, about, verbatim_doc_comment, long_about = None)]
 struct Args {
     /// input file path (defaults to stdin)
     #[arg(short, long)]
