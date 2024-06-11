@@ -1,0 +1,50 @@
+name: create-release-binaries
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build_and_publish:
+    strategy:
+      fail-fast: false
+      matrix:
+          os: [ubuntu-latest, macos-latest, windows-latest]
+          include:
+            - os: ubuntu-latest
+              executable_name: ${{ github.event.repository.name }}
+              os_name: linux
+            - os: macos-latest
+              executable_name: ${{ github.event.repository.name }}
+              os_name: mac
+            - os: windows-latest
+              executable_name: ${{ github.event.repository.name }}.exe
+              os_name: win
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    env:
+      ARCHIVE_NAME:  ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}-${{ matrix.os_name }}.tar.gz
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install stable toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    - name: Run cargo build
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --release
+    - name: Create Archive
+      working-directory: ${{github.workspace}}/target/release
+      run: tar -czf ${{env.ARCHIVE_NAME}} ${{ matrix.executable_name }}
+    - name: Upload to release
+      working-directory: ${{github.workspace}}/target/release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release upload ${{ github.event.release.tag_name }} ${{env.ARCHIVE_NAME}}
