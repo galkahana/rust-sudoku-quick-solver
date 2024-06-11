@@ -2,6 +2,7 @@ CLI for resolving sudoku puzzles.
 Excercise for studying rust.
 Look at [samples](/samples/) to review i/o format for puzzles. Can do both stdi/o and files.
 
+Binaries available with releasez.
 
 ```
 Sudoku Puzzle solver.
