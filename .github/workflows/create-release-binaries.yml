@@ -29,16 +29,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install stable toolchain
-      uses: actions-rs/toolchain@v1
+      uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
-        profile: minimal
         toolchain: stable
-        override: true
     - name: Run cargo build
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --release
+      run: cargo build --release
     - name: Create Archive
       working-directory: ${{github.workspace}}/target/release
       run: tar -czf ${{env.ARCHIVE_NAME}} ${{ matrix.executable_name }}
