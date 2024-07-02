@@ -49,7 +49,11 @@ impl Board {
                     }
                 }
                 Err(err) => {
-                    return Err(ReadError::ReadErrorIO(err));
+                    if err.kind() == io::ErrorKind::UnexpectedEof {
+                        return Err(ReadError::ReadErrorNotEnoughData);
+                    } else {
+                        return Err(ReadError::ReadErrorIO(err.into()));
+                    }
                 }
             }
         }
@@ -144,6 +148,36 @@ mod tests {
         let mut reader = BufReader::new(Cursor::new(read_source.as_bytes()));
 
         assert_eq!(Board::read(&mut reader)?, expected_result);
+        Ok(())
+    }
+    #[test]
+    fn read_board_returns_error_on_incomplete_input() {
+        let read_source = "104000000\n002740000\n000500000\n030000000\n750000000\n000009600\n040006000\n000000071\n00000103\n";
+        let mut reader = BufReader::new(Cursor::new(read_source.as_bytes()));
+        let result = Board::read(&mut reader);
+        assert!(result.is_err());
+        assert!(matches!(result, Err(ReadError::ReadErrorNotEnoughData)));
+    }
+
+    #[test]
+    fn write_board_to_writer() -> io::Result<()> {
+        let board = Board {
+            cells: [
+                [1, 0, 4, 0, 0, 0, 0, 0, 0],
+                [0, 0, 2, 7, 4, 0, 0, 0, 0],
+                [0, 0, 0, 5, 0, 0, 0, 0, 0],
+                [0, 3, 0, 0, 0, 0, 0, 0, 0],
+                [7, 5, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 9, 6, 0, 0],
+                [0, 4, 0, 0, 0, 6, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 7, 1],
+                [0, 0, 0, 0, 0, 1, 0, 3, 0],
+            ],
+        };
+        let mut writer = Vec::new();
+        board.write(&mut writer)?;
+        let expected_result = "104000000\n002740000\n000500000\n030000000\n750000000\n000009600\n040006000\n000000071\n000001030\n";
+        assert_eq!(String::from_utf8_lossy(&writer), expected_result);
         Ok(())
     }
 }
